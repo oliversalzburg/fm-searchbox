@@ -1,0 +1,17 @@
+{
+  "name": "fm-searchbox",
+  "description": "HARTWIG Fair Management Searchbox Component",
+  "version": "0.0.1",
+  "homepage": "https://github.com/hartwig-at/fm-searchbox",
+  "authors": [
+    "Oliver Salzburg <oliver.salzburg@gmail.com>"
+  ],
+  "main": "fm-searchbox.js",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "angular": "~1.2.8",
+    "bootstrap": "~3.0.3",
+    "jquery": "~2.0.3"
+  }
+}
