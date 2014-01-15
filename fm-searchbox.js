@@ -32,23 +32,23 @@
 try { angular.module( "fm.components" ); } catch( ignored ) { angular.module( "fm.components", [] ); }
 
 angular.module( "fm.components" )
+  .directive( "fmSearchboxButton",
+              function() {
+                return {
+                  replace  : false,
+                  restrict : "A",
+                  link     : function postLink( scope, element, attributes, controller ) {
+                    if( scope.actionButtons ) {
+                      scope.actionButtons.push( element.get( 0 ) );
+                    }
+                  }
+                }
+              } )
+
   .directive( "fmSearchbox", [
-    "$timeout", function( $timeout ) {
+    "$compile", "$timeout", function( $compile, $timeout ) {
       return {
-        template : "<div>" +
-                   " <button type='button' class='btn btn-default pull-left hideFocus actionButton' data-loading-text={{searchText}} data-toggle='tooltip' title={{actionTitle}} style='margin-right:2px'>" +
-                   "   <i class='icon-search'></i>&nbsp;UID" +
-                   " </button>" +
-                   " <div class='input-group'>" +
-                   "   <input type='text' class='form-control' placeholder={{placeholder}} ng-model=ngModel>" +
-                   "   <span class='input-group-btn'>" +
-                   "     <button type='button' class='btn btn-default hideFocus cancelButton' ng-click=\"ngModel=''\">" +
-                   "       <span class='glyphicon glyphicon-remove'></span>" +
-                   "     </button>" +
-                   "   </span>" +
-                   " </div>" +
-                   "</div>",
-        replace  : true,
+        replace  : false,
         restrict : "E",
         scope    : {
           ngModel           : "=",
@@ -59,17 +59,48 @@ angular.module( "fm.components" )
           actionPlaceholder : "@"
         },
         link     : function postLink( scope, element, attributes, controller ) {
+          var header = "<div>";
+          var footer = " <div class='input-group'>" +
+                       "   <input type='text' class='form-control' placeholder={{placeholder}} ng-model=ngModel>" +
+                       "   <span class='input-group-btn'>" +
+                       "     <button type='button' class='btn btn-default hideFocus cancelButton' ng-click=\"ngModel=''\">" +
+                       "       <span class='glyphicon glyphicon-remove'></span>" +
+                       "     </button>" +
+                       "   </span>" +
+                       " </div>" +
+                       "</div>";
+
+          var children = element.children();
+          var childrenHTML = "";
+          if( 0 != children.length ) {
+            angular.forEach( children, function( child ) {
+              childrenHTML += child.outerHTML;
+            } );
+          }
+          // Construct the final template
+          var template = header + childrenHTML + footer;
+
+          // Create a new DOM element from the template.
+          var newElement = angular.element( template );
+          // Replace the original element with our new element.
+          element.replaceWith( newElement );
+          // Angularize the DOM element.
+          // Prepare an array for searchbox buttons to register themselves into.
+          scope.actionButtons = [];
+          // Compilation will invoke all fmSearchboxButtons to be linked again.
+          $compile( newElement )( scope );
+          element = newElement;
 
           scope.actionPending = false;
 
           var textbox = element.find( "input" );
-          var actionButton = element.find( "button.actionButton" );
           var cancelButton = element.find( "button.cancelButton" );
+          var actionButtons = $(scope.actionButtons);
 
-          actionButton.hide();
+          actionButtons.hide();
 
           textbox.on( "focus", function() {
-            actionButton.show();
+            actionButtons.show();
           } );
           textbox.on( "blur", function() {
             $timeout(
@@ -77,13 +108,13 @@ angular.module( "fm.components" )
                 // Hide the button if we're not searching right now.
                 // Otherwise, we probably lost focus because the button was clicked.
                 if( scope.actionPending != true ) {
-                  actionButton.fadeOut();
+                  actionButtons.fadeOut();
                 }
               }, 1000
             );
           } );
 
-          actionButton.click( function() {
+          actionButtons.click( function() {
             waitForUid();
             var event = scope.$root.$broadcast( "LEARN_UID" );
             if( event.defaultPrevented ) {
@@ -97,15 +128,15 @@ angular.module( "fm.components" )
 
           $timeout(
             function() {
-              actionButton.tooltip( { placement : "top" } );
-              actionButton.removeClass( "actionButton" );
+              actionButtons.tooltip( { placement : "top" } );
+              actionButtons.removeClass( "actionButton" );
               cancelButton.removeClass( "cancelButton" );
             }
           );
 
           function waitForUid() {
-            actionButton.button( "loading" );
-            actionButton.tooltip( "hide" );
+            actionButtons.button( "loading" );
+            actionButtons.tooltip( "hide" );
             textbox.addClass( "uneditable-input" );
             cancelButton.tooltip( { placement : "top", title : scope.actionCancelTitle } );
 
@@ -117,11 +148,11 @@ angular.module( "fm.components" )
           }
 
           function stopWaitingForUid() {
-            actionButton.button( "reset" );
+            actionButtons.button( "reset" );
             textbox.removeClass( "uneditable-input" );
             cancelButton.tooltip( "destroy" );
 
-            actionButton.hide();
+            actionButtons.hide();
             scope.actionPending = false;
             if( element.originalPlaceholder ) {
               scope.placeholder = element.originalPlaceholder;
