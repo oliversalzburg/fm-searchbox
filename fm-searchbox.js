@@ -41,6 +41,31 @@ angular.module( "fm.components" )
                     if( scope.actionButtons ) {
                       scope.actionButtons.push( element.get( 0 ) );
                     }
+
+                    var action = attributes["action"];
+                    element.bind( "click", function() {
+                      var actionEvent = scope.$emit( action );
+                      if( actionEvent.defaultPrevented ) {
+                        scope.endActionState();
+                      }
+                    } )
+                  }
+                }
+              } )
+
+  .directive( "fmSearchboxButtonCancel",
+              function() {
+                return {
+                  template : "<button type='button' class='btn btn-default hideFocus'>" +
+                             "  <span class='glyphicon glyphicon-remove'></span>" +
+                             "</button>",
+                  replace  : true,
+                  restrict : "E",
+                  link     : function postLink( scope, element, attributes, controller ) {
+                    element.on( "click", function() {
+                      scope.ngModel = "";
+                      scope.$emit( "cancelled" );
+                    } );
                   }
                 }
               } )
@@ -63,9 +88,7 @@ angular.module( "fm.components" )
           var footer = " <div class='input-group'>" +
                        "   <input type='text' class='form-control' placeholder={{placeholder}} ng-model=ngModel>" +
                        "   <span class='input-group-btn'>" +
-                       "     <button type='button' class='btn btn-default hideFocus cancelButton' ng-click=\"ngModel=''\">" +
-                       "       <span class='glyphicon glyphicon-remove'></span>" +
-                       "     </button>" +
+                       "     <fm-searchbox-button-cancel />" +
                        "   </span>" +
                        " </div>" +
                        "</div>";
@@ -95,7 +118,7 @@ angular.module( "fm.components" )
 
           var textbox = element.find( "input" );
           var cancelButton = element.find( "button.cancelButton" );
-          var actionButtons = $(scope.actionButtons);
+          var actionButtons = $( scope.actionButtons );
 
           actionButtons.hide();
 
@@ -115,15 +138,11 @@ angular.module( "fm.components" )
           } );
 
           actionButtons.click( function() {
-            waitForUid();
-            var event = scope.$root.$broadcast( "LEARN_UID" );
-            if( event.defaultPrevented ) {
-              stopWaitingForUid();
-            }
+            scope.triggerActionState();
           } );
 
-          cancelButton.click( function() {
-            stopWaitingForUid();
+          scope.$on( "cancelled", function() {
+            scope.endActionState();
           } );
 
           $timeout(
@@ -134,7 +153,7 @@ angular.module( "fm.components" )
             }
           );
 
-          function waitForUid() {
+          scope.triggerActionState = function() {
             actionButtons.button( "loading" );
             actionButtons.tooltip( "hide" );
             textbox.addClass( "uneditable-input" );
@@ -143,11 +162,9 @@ angular.module( "fm.components" )
             if( !element.originalPlaceholder ) element.originalPlaceholder = scope.placeholder;
             scope.actionPending = true;
             scope.placeholder = scope.actionPlaceholder;
+          };
 
-            if( !(scope.$$phase || scope.$root.$$phase) ) scope.$apply();
-          }
-
-          function stopWaitingForUid() {
+          scope.endActionState = function() {
             actionButtons.button( "reset" );
             textbox.removeClass( "uneditable-input" );
             cancelButton.tooltip( "destroy" );
@@ -158,12 +175,11 @@ angular.module( "fm.components" )
               scope.placeholder = element.originalPlaceholder;
               element.originalPlaceholder = null;
             }
-            if( !(scope.$$phase || scope.$root.$$phase) ) scope.$apply();
-          }
+          };
 
           scope.$watch( "actionPending", function( newValue, oldValue ) {
-            if( newValue == true ) waitForUid();
-            if( newValue == false ) stopWaitingForUid();
+            if( newValue == true ) scope.triggerActionState();
+            if( newValue == false ) scope.endActionState();
           } );
 
         }
