@@ -105,6 +105,12 @@ angular.module( "fm.components" )
 
           // Create a new DOM element from the template.
           var newElement = angular.element( template );
+          // Copy attributes from original element.
+          var attributeSource = element[0].attributes;
+          for( var attributeIndex = 0; attributeIndex < attributeSource.length; ++attributeIndex ) {
+            newElement.attr( attributeSource.item( attributeIndex ).nodeName, attributeSource.item( attributeIndex ).nodeValue );
+          }
+
           // Replace the original element with our new element.
           element.replaceWith( newElement );
           // Angularize the DOM element.
