@@ -149,6 +149,7 @@ angular.module( "fm.components" )
 
           scope.$on( "cancelled", function() {
             scope.endActionState();
+            scope.$$phase || scope.$apply();
           } );
 
           $timeout(
