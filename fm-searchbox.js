@@ -44,6 +44,8 @@ angular.module( "fm.components" )
 
                     var action = attributes["action"];
                     element.bind( "click", function() {
+                      scope.triggerActionState();
+
                       var actionEvent = scope.$emit( action );
                       if( actionEvent.defaultPrevented ) {
                         scope.endActionState();
@@ -141,10 +143,6 @@ angular.module( "fm.components" )
                 }
               }, 1000
             );
-          } );
-
-          actionButtons.click( function() {
-            scope.triggerActionState();
           } );
 
           scope.$on( "cancelled", function() {
