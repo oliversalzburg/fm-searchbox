@@ -171,7 +171,7 @@ angular.module( "fm.components" )
 
             cancelButton.tooltip( "destroy" );
             if( cancelTitle ) {
-              cancelButton.tooltip( { placement : "top", title : cancelTitle } );
+              cancelButton.tooltip( { placement : "top", title : cancelTitle, container : "body" } );
             }
 
             if( !element.originalPlaceholder ) element.originalPlaceholder = scope.placeholder;
