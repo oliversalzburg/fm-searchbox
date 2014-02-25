@@ -64,6 +64,8 @@ angular.module( "fm.components" )
                   replace  : true,
                   restrict : "E",
                   link     : function postLink( scope, element, attributes, controller ) {
+                    scope.cancelButton = angular.element( element.get( 0 ) );
+
                     element.on( "click", function() {
                       scope.ngModel = "";
                       scope.$emit( "cancelled" );
@@ -73,7 +75,7 @@ angular.module( "fm.components" )
               } )
 
   .directive( "fmSearchbox", [
-    "$compile", "$timeout", function( $compile, $timeout ) {
+    "$compile", "$timeout", "$tooltip", function( $compile, $timeout, $tooltip ) {
       return {
         replace  : false,
         restrict : "E",
@@ -81,7 +83,6 @@ angular.module( "fm.components" )
           ngModel           : "=",
           placeholder       : "@",
           searchText        : "@",
-          actionTitle       : "@",
           actionCancelTitle : "@",
           actionPlaceholder : "@"
         },
@@ -125,7 +126,7 @@ angular.module( "fm.components" )
           scope.actionPending = false;
 
           var textbox = element.find( "input" );
-          var cancelButton = element.find( "button.cancelButton" );
+          //var cancelButton = element.find( "button.cancelButton" );
           var actionButtons = $( scope.actionButtons );
 
           actionButtons.hide();
@@ -154,15 +155,16 @@ angular.module( "fm.components" )
             function() {
               actionButtons.tooltip( { placement : "top" } );
               actionButtons.removeClass( "actionButton" );
-              cancelButton.removeClass( "cancelButton" );
             }
           );
 
           scope.triggerActionState = function() {
             actionButtons.button( "loading" );
-            actionButtons.tooltip( "hide" );
+            //actionButtons.tooltip( "hide" );
             textbox.addClass( "uneditable-input" );
-            cancelButton.tooltip( { placement : "top", title : scope.actionCancelTitle } );
+
+            scope.cancelButton.tooltip( "destroy" );
+            scope.cancelButton.tooltip( { placement : "top", title : scope.actionCancelTitle } );
 
             if( !element.originalPlaceholder ) element.originalPlaceholder = scope.placeholder;
             scope.actionPending = true;
@@ -172,7 +174,7 @@ angular.module( "fm.components" )
           scope.endActionState = function() {
             actionButtons.button( "reset" );
             textbox.removeClass( "uneditable-input" );
-            cancelButton.tooltip( "destroy" );
+            scope.cancelButton.tooltip( "destroy" );
 
             actionButtons.hide();
             scope.actionPending = false;
