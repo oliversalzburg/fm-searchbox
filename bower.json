@@ -10,8 +10,8 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "angular": "~1.2.8",
-    "bootstrap": "~3.0.3",
-    "jquery": "~2.0.3"
+    "angular": "~1.2.14",
+    "bootstrap": "~3.1.1",
+    "jquery": "~2.1.0"
   }
 }
