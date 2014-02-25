@@ -167,8 +167,6 @@ angular.module( "fm.components" )
             actionButtons.tooltip( "hide" );
             if( isBlocking ) {
               scope.inputEnabled = false;
-            } else {
-              textbox.focus();
             }
 
             cancelButton.tooltip( "destroy" );
