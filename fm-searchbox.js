@@ -42,15 +42,16 @@ angular.module( "fm.components" )
                       scope.actionButtons.push( element.get( 0 ) );
                     }
 
-                    var action = attributes["action"];
+                    var action = attributes[ "action" ];
+                    var blockInput = (attributes[ "blockInput" ]) ? true : false;
                     element.bind( "click", function() {
-                      scope.triggerActionState();
+                      scope.triggerActionState( blockInput, attributes[ "placeholder" ], attributes[ "cancelTitle" ] );
 
                       var actionEvent = scope.$emit( action );
                       if( actionEvent.defaultPrevented ) {
                         scope.endActionState();
                       }
-                    } )
+                    } );
                   }
                 }
               } )
@@ -64,7 +65,7 @@ angular.module( "fm.components" )
                   replace  : true,
                   restrict : "E",
                   link     : function postLink( scope, element, attributes, controller ) {
-                    scope.cancelButton = angular.element( element.get( 0 ) );
+                    scope.cancelButton = element.get( 0 );
 
                     element.on( "click", function() {
                       scope.ngModel = "";
@@ -89,7 +90,7 @@ angular.module( "fm.components" )
         link     : function postLink( scope, element, attributes, controller ) {
           var header = "<div>";
           var footer = " <div class='input-group'>" +
-                       "   <input type='text' class='form-control' placeholder={{placeholder}} ng-model=ngModel>" +
+                       "   <input type='text' class='form-control' placeholder={{placeholder}} ng-model=ngModel ng-disabled=!inputEnabled>" +
                        "   <span class='input-group-btn'>" +
                        "     <fm-searchbox-button-cancel />" +
                        "   </span>" +
@@ -124,10 +125,11 @@ angular.module( "fm.components" )
           element = newElement;
 
           scope.actionPending = false;
+          scope.inputEnabled = true;
 
           var textbox = element.find( "input" );
-          //var cancelButton = element.find( "button.cancelButton" );
           var actionButtons = $( scope.actionButtons );
+          var cancelButton = $( scope.cancelButton );
 
           actionButtons.hide();
 
@@ -158,23 +160,34 @@ angular.module( "fm.components" )
             }
           );
 
-          scope.triggerActionState = function() {
-            actionButtons.button( "loading" );
-            //actionButtons.tooltip( "hide" );
-            textbox.addClass( "uneditable-input" );
+          scope.triggerActionState = function( isBlocking, placeholder, cancelTitle ) {
+            scope.wasBlocking = isBlocking;
 
-            scope.cancelButton.tooltip( "destroy" );
-            scope.cancelButton.tooltip( { placement : "top", title : scope.actionCancelTitle } );
+            actionButtons.fadeOut();
+            actionButtons.tooltip( "hide" );
+            if( isBlocking ) {
+              scope.inputEnabled = false;
+            } else {
+              textbox.focus();
+            }
+
+            cancelButton.tooltip( "destroy" );
+            if( cancelTitle ) {
+              cancelButton.tooltip( { placement : "top", title : cancelTitle } );
+            }
 
             if( !element.originalPlaceholder ) element.originalPlaceholder = scope.placeholder;
             scope.actionPending = true;
-            scope.placeholder = scope.actionPlaceholder;
+            if( placeholder ) {
+              scope.placeholder = placeholder;
+            }
           };
 
           scope.endActionState = function() {
-            actionButtons.button( "reset" );
-            textbox.removeClass( "uneditable-input" );
-            scope.cancelButton.tooltip( "destroy" );
+            scope.wasBlocking = void(0);
+
+            scope.inputEnabled = true;
+            cancelButton.tooltip( "destroy" );
 
             actionButtons.hide();
             scope.actionPending = false;
@@ -185,7 +198,7 @@ angular.module( "fm.components" )
           };
 
           scope.$watch( "actionPending", function( newValue, oldValue ) {
-            if( newValue == true ) scope.triggerActionState();
+            if( newValue == true ) scope.triggerActionState( scope.wasBlocking );
             if( newValue == false ) scope.endActionState();
           } );
 
