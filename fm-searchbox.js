@@ -76,7 +76,7 @@ angular.module( "fm.components" )
               } )
 
   .directive( "fmSearchbox", [
-    "$compile", "$timeout", "$tooltip", function( $compile, $timeout, $tooltip ) {
+    "$compile", "$timeout", function( $compile, $timeout ) {
       return {
         replace  : false,
         restrict : "E",
