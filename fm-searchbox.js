@@ -155,7 +155,7 @@ angular.module( "fm.components" )
 
           $timeout(
             function() {
-              actionButtons.tooltip( { placement : "top" } );
+              actionButtons.tooltip( { placement : "bottom" } );
               actionButtons.removeClass( "actionButton" );
             }
           );
@@ -171,7 +171,7 @@ angular.module( "fm.components" )
 
             cancelButton.tooltip( "destroy" );
             if( cancelTitle ) {
-              cancelButton.tooltip( { placement : "top", title : cancelTitle, container : "body" } );
+              cancelButton.tooltip( { placement : "bottom", title : cancelTitle, container : "body" } );
             }
 
             if( !element.originalPlaceholder ) element.originalPlaceholder = scope.placeholder;
