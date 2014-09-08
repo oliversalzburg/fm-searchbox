@@ -112,7 +112,7 @@ angular.module( "fm.components" )
           // Copy attributes from original element.
           var attributeSource = element[0].attributes;
           for( var attributeIndex = 0; attributeIndex < attributeSource.length; ++attributeIndex ) {
-            newElement.attr( attributeSource.item( attributeIndex ).nodeName, attributeSource.item( attributeIndex ).nodeValue );
+            newElement.attr( attributeSource.item( attributeIndex ).nodeName, attributeSource.item( attributeIndex ).value );
           }
 
           // Replace the original element with our new element.
