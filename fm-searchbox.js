@@ -185,7 +185,11 @@ angular.module( "fm.components" )
             scope.wasBlocking = void(0);
 
             scope.inputEnabled = true;
-            cancelButton.tooltip( "destroy" );
+            try {
+              cancelButton.tooltip( "destroy" );
+            } catch( e ){
+              // Handle destruction before initialization
+            }
 
             actionButtons.hide();
             scope.actionPending = false;
